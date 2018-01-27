@@ -24,50 +24,51 @@ export default {
     }
   },
   methods: {
-    init: function (userAgent, referrer) {
-      var _t = this
-      axios.post(nuxt.globals.backend + 'get/' + nuxt.globals.lang + '/', {
-        'useragent': userAgent,
-        'referrer': referrer,
-        'prerender': process.server
-      })
-      .then(function (response) {
-        _t.nuxt.globals.i18n = response.data.i18n
-        _t.nuxt.globals.questions = response.data.questions
-        _t.nuxt.globals.distrochooser.questions = nuxt.globals.questions
-        _t.nuxt.globals.distros = response.data.distros
-        for (var d in response.data) {
-          _t[d] = response.data[d]
+    init: async function (userAgent, referrer) {        
+      await this.$store.dispatch('getData',{
+        data: {
+          'useragent': userAgent,
+           'referrer': referrer, 
+           'prerender': process.server
+          }, 
+        params:{
+          'language': nuxt.globals.lang 
         }
-        nuxt.globals.questions.forEach(function (element) {
+      })
+      this.nuxt.globals.i18n = this.$store.state.data.i18n
+      this.nuxt.globals.questions = this.$store.state.data.questions
+      this.nuxt.globals.distrochooser.questions = nuxt.globals.questions
+      this.nuxt.globals.distros = this.$store.state.data.distros
+      for (var d in this.$store.state.data) {
+          this[d] = this.$store.state.data[d]
+      }
+      nuxt.globals.questions.forEach(function (element) {
           element.open = false
-        }, this)
-        _t.nuxt.globals.visitor = response.data.id
-        console.log('Hello #' + _t.nuxt.globals.visitor)
-        nuxt.globals.questions.splice(0, 0, _t.introMessage)
-        nuxt.globals.questions[0].text = _t.text('sys.welcometext')
-        nuxt.globals.questions[0].title = _t.text('sys.welcometitle')
-        nuxt.globals.distrochooser.loaded = true
-        if (_t.nuxt.globals.test !== -1) {
-          axios.get(nuxt.globals.backend + 'getresult/' + nuxt.globals.test + '/')
-          .then(function (response) {
-            _t.globals.preloadInfos = response.data
-            nuxt.globals.questions.forEach(function (element) {
+      }, this)
+      this.nuxt.globals.visitor = this.$store.state.data.id
+      console.log('Hello #' + this.nuxt.globals.visitor)
+      nuxt.globals.questions.splice(0, 0, this.introMessage)
+      nuxt.globals.questions[0].text = this.text('sys.welcometext')
+      nuxt.globals.questions[0].title = this.text('sys.welcometitle')
+      nuxt.globals.distrochooser.loaded = true
+      if (this.nuxt.globals.test !== -1) {
+          await this.$store.dispatch('getResult',{
+            params:{
+              'id': nuxt.globals.test
+            }
+          })
+          this.globals.preloadInfos = this.$store.state.result
+          nuxt.globals.questions.forEach(function (element) {
               var selected = false
               element.answers.forEach(function (answer) {
-                if (_t.globals.preloadInfos.answers.indexOf(answer.id) !== -1) {
-                  answer.selected = true
-                  selected = true
+                if (this.globals.preloadInfos.answers.indexOf(answer.id) !== -1) {
+                    answer.selected = true
+                    selected = true
                 }
               }, this)
               element.answered = selected
-            }, this)
-          })
-        }
-      })
-      .catch(function (error) {
-        console.log(error)
-      })
+          }, this)
+      }
     },
     setRating: function (rating, test) {
       var _t = this
