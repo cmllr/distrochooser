@@ -44,7 +44,7 @@
         </div>
         <bridge></bridge>
         <div class="accordion" :class="{'accordeon-disabled disabled': weigthActive || resultWayChoosed}">
-          <div class="accordion-item" v-for="(q,qindex) in this.globals.distrochooser.questions" v-bind:key="q.id" >
+          <div class="accordion-item" v-for="(q,qindex) in this.$store.state.data.questions" v-bind:key="q.id" >
             <input type="radio" :id="'header' + q.id" name="accordion-radio" hidden="" v-on:click="hideResults">
             <label class="accordion-header hand columns" :class="{'answered':q.answered}"  :for="'header' + q.id">
                <span class="col-1" v-if="q.number !== -1"> {{ qindex }}. </span>{{ q.title }}
@@ -124,7 +124,7 @@
             {{ text("sys.weightinfo") }}
           </div>
           <div class="form-group">
-            <div v-for="(tag,key) in tags" v-bind:key="key" v-if="!tag.negative">
+            <div v-for="(tag,key) in this.$store.state.tags" v-bind:key="key" v-if="!tag.negative">
                 <div>
                   {{ text(key) }} 
                   <span class="important" v-if="parseInt(tag.weight) > 1 ">{{ text("important") }}</span>
@@ -165,8 +165,8 @@
               <figure class="avatar avatar-lg">
                 <img src="/logo.png">
               </figure>
-              <div class="panel-subtitle">{{ answered.length + "/" + (this.globals.questions.length - 1) + " " + text('sys.answered') }}</div>
-              <progress class="progress" :value="answered.length" :max="this.globals.questions.length - 1"></progress>
+              <div class="panel-subtitle">{{ answered.length + "/" + (this.$store.state.data.questions.length - 1) + " " + text('sys.answered') }}</div>
+              <progress class="progress" :value="answered.length" :max="this.$store.state.data.questions.length - 1"></progress>
             </div>
             <div class="panel-body">
               <div class="form-group">
@@ -221,9 +221,9 @@ export default {
       }
       var negativeTags = 0
       var tagCount = 0
-      for (var p in this.tags) {
+      for (var p in this.$store.state.tags) {
         // the check is only for tags the user can weight. If all of the positive tags are "downweighted", we cannot calculate any results
-        var isNegative = this.tags[p].negative === false && parseInt(this.tags[p].weight) === 0
+        var isNegative = this.$store.state.tags[p].negative === false && parseInt(this.$store.state.tags[p].weight) === 0
         if (isNegative) {
           negativeTags++
         }
@@ -232,10 +232,10 @@ export default {
       return negativeTags === tagCount
     },
     lastQuestionNumber: function () {
-      return this.globals.questions.length - 1
+      return this.$store.state.data.questions.length - 1
     },
     answered: function () {
-      return this.globals.questions.filter(function (q) {
+      return this.$store.state.data.questions.filter(function (q) {
         return q.answered
       })
     },
@@ -247,14 +247,14 @@ export default {
         var hits = []
         var antihits = []
         d.results = {}
-        for (var k in _t.tags) {
+        for (var k in _t.$store.state.tags) {
           /**
            * Case I : tag 'foo' -> tag (distro) 'foo'
            * Case II : tag 'foo' -> tag (distro) '!foo'
            * Case III : tag 'foo', negative
            * */
           if (d.tags.indexOf(k) !== -1 && hits.indexOf(k) === -1) {
-            if (_t.tags[k].negative) {
+            if (_t.$store.state.tags[k].negative) {
               antihits.push(k)
             } else {
               hits.push(k)
@@ -267,21 +267,16 @@ export default {
         var distroPoints = 0
         // calculate sum with weight
         hits.forEach(function (t) {
-          var weight = _t.tags[t].weight
-          var amount = _t.tags[t].amount // a tag can be given more than one times, causes "heavier" weight
+          var weight = _t.$store.state.tags[t].weight
+          var amount = _t.$store.state.tags[t].amount // a tag can be given more than one times, causes "heavier" weight
           var sum = amount * weight
           distroPoints += sum
-          d.results[t] = _t.tags[t]
+          d.results[t] = _t.$store.state.tags[t]
         })
         // calculate sum with weight
         antihits.forEach(function (t) {
-          /*
-          var weight = _t.tags[t].weight
-          var amount = _t.tags[t].amount // a tag can be given more than one times, causes "heavier" weight
-          var sum = amount * weight
-          */
           distroPoints = 0
-          d.results[t] = _t.tags[t]
+          d.results[t] = _t.$store.state.tags[t]
         })
         // calculate percentage
         d.points = distroPoints
@@ -296,7 +291,7 @@ export default {
     isTagMatchOnlyPositives: function (tags) {
       for (var i = 0; i < tags.length; i++) {
         var tag = tags[i]
-        if (typeof (this.tags[tag]) !== 'undefined' && !this.tags[tag].negative) {
+        if (typeof (this.$store.state.tags[tag]) !== 'undefined' && !this.$store.state.tags[tag].negative) {
           return true
         }
       }
@@ -305,7 +300,7 @@ export default {
     isTagMatch: function (tags) {
       for (var i = 0; i < tags.length; i++) {
         var tag = tags[i]
-        if (typeof (this.tags[tag]) !== 'undefined') {
+        if (typeof (this.$store.state.tags[tag]) !== 'undefined') {
           return true
         }
       }
@@ -322,7 +317,7 @@ export default {
               if (typeof result[t] === 'undefined') {
                 result[t] = {
                   amount: 1,
-                  weight: typeof _t.tags[t] !== 'undefined' ? _t.tags[t].weight : 1,
+                  weight: typeof _t.$store.state.tags[t] !== 'undefined' ? _t.$store.state.tags[t].weight : 1,
                   negative: false
                 }
               } else {
@@ -335,7 +330,7 @@ export default {
               if (typeof result[name] === 'undefined') {
                 result[name] = {
                   amount: 1,
-                  weight: typeof _t.tags[t] !== 'undefined' ? _t.tags[t].weight : 1,
+                  weight: typeof _t.$store.state.tags[t] !== 'undefined' ? _t.$store.state.tags[t].weight : 1,
                   negative: true
                 }
               } else {
@@ -345,16 +340,16 @@ export default {
           }
         }, this)
       }
-      this.tags = result
+      this.$store.commit("setTags", result)
       this.hideResults()
     },
     nextTrigger: function (q) {
-      var index = this.globals.questions.indexOf(q)
+      var index = this.$store.state.data.questions.indexOf(q)
       if (index === this.lastQuestionNumber) { // eslint-disable-line space-infix-ops
         return
       }
       jQuery('#header' + q.id).trigger('click') // eslint-disable-line no-undef
-      var next = this.globals.questions[index + 1]
+      var next = this.$store.state.data.questions[index + 1]
       jQuery('#header' + next.id).trigger('click') // eslint-disable-line no-undef
       jQuery('#header' + next.id).animate({ scrollTop: jQuery('#header' + next.id).offset().top }, 10) // eslint-disable-line no-undef
       this.resultWayChoosed = false
@@ -388,9 +383,11 @@ export default {
     toggleWeighting: function () {
       this.weigthActive = !this.weigthActive
       if (this.globals.preloadInfos !== null) {
+        var preloadedTags = {}
         this.globals.preloadInfos.tags.forEach(function (tag) {
-          this.tags[tag.name] = tag
+          preloadedTags[tag.name] = tag
         }, this)
+        this.$store.commit("setTags", preloadedTags)
         this.globals.preloadInfos = null
         this.weigthActive = true
         this.resultWayChoosed = false

@@ -70,20 +70,19 @@ export default {
           }, this)
       }
     },
-    setRating: function (rating, test) {
-      var _t = this
-      axios.get(nuxt.globals.backend + 'addrating/' + test + '/' + rating)
-      .then(function (response) {
-        _t.nuxt.globals.ratingSent = response.data === 1
-      }).catch(function (response) {
-        console.log(response)
+    setRating: async function (rating, test) {
+      await this.$store.dispatch('setRating', {
+        params:{
+          'test': test,
+          'rating': rating
+        }
       })
     },
-    addResult: function (instance) {
-      var tags = this.globals.mainInstance.tags // eslint-disable-line no-unused-vars
+    addResult: async function (instance) {
+      var tags = this.nuxt.globals.mainInstance.tags // eslint-disable-line no-unused-vars
       var answers = [] // eslint-disable-line no-unused-vars
-      for (var i in this.globals.mainInstance.answered) {
-        var answer = this.globals.mainInstance.answered[i]
+      for (var i in this.nuxt.globals.mainInstance.answered) {
+        var answer = this.nuxt.globals.mainInstance.answered[i]
         answer.answers.forEach(function (answer) {
           if (answer.selected) {
             answers.push(answer.id)
@@ -100,14 +99,15 @@ export default {
         }
         tagsToSubmit.push(element)
       }
-      var _t = this
-      axios.post(nuxt.globals.backend + 'addresult/' + nuxt.globals.lang + '/1/' + nuxt.globals.visitor + '/', {
-        'answers': answers,
-        'tags': tagsToSubmit
-      })
-      .then(function (response) {
-        _t.globals.test = response.data
-        instance.displayTest = _t.globals.test
+      await this.$store.dispatch('addResult',{
+        data: {
+          'answers': answers,
+          'tags': tagsToSubmit
+        }, 
+        params:{
+          'language': nuxt.globals.lang,
+          'visitor': this.$store.state.data.id
+        }
       })
     }
   }

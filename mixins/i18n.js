@@ -1,11 +1,7 @@
-import nuxt from '../mixins/nuxt-wrapper'
 export default {
-  mixins: [
-    nuxt
-  ],
   methods: {
     text: function (value) {
-      return this.globals.i18n !== null && typeof this.globals.i18n[value] !== 'undefined' ? this.globals.i18n[value].translation : value
+      return this.$store.state.data.i18n !== null && typeof this.$store.state.data.i18n[value] !== 'undefined' ? this.$store.state.data.i18n[value].translation : value
     },
     translateExcludedTags: function (answer) {
       var result = this.text('excludes') + ': <br>'

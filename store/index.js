@@ -8,10 +8,13 @@ import nuxt from '../nuxt.config'
 Vue.use(Vuex)
 
 const store = new Vapi({
-  baseURL: nuxt.globals.backend,
+  baseURL: 'https://waldorf.distrochooser.de/',
   state: {
     data: null,
-    result: null
+    result: null,
+    rating: null,
+    tags: {}, 
+    test: null // the submitted test..
   }
 })
   .post({
@@ -24,8 +27,22 @@ const store = new Vapi({
     action: 'getResult',
     path: ({id}) => `getresult/${id}/`
   })
+  .get({
+    property: 'rating',
+    action: 'setRating',
+    path: ({test, rating}) => `addrating/${test}/${rating}`
+  })
+  .post({
+    property: 'test',
+    action: 'addResult',
+    path: ({language, visitor}) => `addresult/${language}/1/${visitor}/`
+  })
   .getStore({
     createStateFn: true
   })
+
+  store.mutations.setTags = function (state, tags) {
+    state.tags = tags
+  }
 
 export default store

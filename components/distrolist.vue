@@ -7,7 +7,7 @@
     <h4 class="empty-title">{{ text("sys.nodistros") }}</h4>
     <p class="empty-subtitle">{{ text("sys.nodistrostext") }}</p>
   </div>
-  <div class="share-mobile show-xs" v-if="!isDistroListEmpty && this.parent.displayTest != -1">    
+  <div class="share-mobile show-xs" v-if="!isDistroListEmpty && !this.$store.state.pending.test">    
     <p class="mobile-share-text">
       {{ text('share') }}
     </p>
@@ -17,8 +17,8 @@
   <div class="share columns hide-xs" v-if="!isDistroListEmpty">
     <div class="column col-4"></div>
     <div class="column col-6">
-      <div class="loading" v-if="this.parent.displayTest == -1"></div>
-      <div class="tile" v-if="this.parent.displayTest != -1">
+      <div class="loading" v-if="this.$store.state.pending.test"></div>
+      <div class="tile" v-if="!this.$store.state.pending.test">
         <div class="tile-icon">
           <figure class="avatar avatar-lg">
             <img class="share-logo" src="/logo.png">
@@ -96,7 +96,7 @@ export default {
   ],
   computed: {
     shareLink: function () {
-      return 'https://distrochooser.de/' + this.globals.lang + '/' + this.parent.displayTest
+      return 'https://distrochooser.de/' + this.globals.lang + '/' + this.$store.state.test
     },
     isDistroListEmpty: function () {
       if (!this.globals.distrochooser.options.displayExcluded) {

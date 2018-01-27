@@ -22,7 +22,6 @@ module.exports = {
     i18n: null,
     distrochooser: null,
     questions: null,
-    backend: 'https://waldorf.distrochooser.de/',
     lang: locales[0],
     distros: [],
     useragent: null,
@@ -105,7 +104,7 @@ module.exports = {
       },
       {
         name: 'generator',
-        content: 'LDC 2018'
+        content: 'LDC 2019 (5.0)'
       }
     ],
     link: [

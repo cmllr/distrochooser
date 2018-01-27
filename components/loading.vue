@@ -6,7 +6,7 @@
       <img alt="Distrochooser Logo" title="Distrochooser Logo" src="/logo.png">
     </div>
     <div class="column col-6 loader-text hide-xs">
-     <h1>{{ this.nuxt.globals.welcomeHeader[this.nuxt.globals.lang] }} </h1>
+     <h1>{{ this.nuxt.globals.welcomeHeader[this.nuxt.globals.lang] }} <b>5</b></h1>
      <p v-html="this.nuxt.globals.longDescriptions[this.nuxt.globals.lang]"></p>
     </div>
     <div class="column show-xs mobile-text">
