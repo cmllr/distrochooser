@@ -3,17 +3,17 @@
 		<div class="column col-11">
 			<ul class="menu left-box hide-xs fixed">
 				<li class="menu-item">
-					<a :href="'/info/'+this.globals.lang+'/about'">
+					<a :href="'/info/'+ this.$store.state.language +'/about'">
 						<i class="icon icon-link"></i> {{ text("sys.about") }}
 					</a>
 				</li>
 				<li class="menu-item">
-					<a :href="'/info/'+this.globals.lang+'/privacy'">
+					<a :href="'/info/'+this.$store.state.language +'/privacy'">
 						<i class="icon icon-link"></i> {{ text("sys.privacy") }}
 					</a>
 				</li>
 				<li class="menu-item">
-					<a :href="'/info/'+this.globals.lang+'/contact'">
+					<a :href="'/info/'+this.$store.state.language +'/contact'">
 						<i class="icon icon-link"></i> {{ text("sys.contact") }}
 					</a>
 				</li>
@@ -52,9 +52,8 @@
  
 <script>
 import i18n from '../mixins/i18n'
-import nuxt from '../mixins/nuxt-wrapper'
 export default {
-  mixins: [i18n, nuxt]
+  mixins: [i18n]
 }
 </script>
  

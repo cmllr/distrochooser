@@ -1,24 +1,25 @@
 <template lang="html">
   <div>
         <p v-if="selectedRating == 0">
-            {{ this.nuxt.globals.distrochooser.text('sys.rate') }}
+            {{ this.text('sys.rate') }}
         </p>
         <p class="star-parent" v-if="selectedRating == 0">
             <span class="star" v-for="(icon, key) in icons">
-                <a class="face tooltip tooltip-bottom" :data-tooltip="nuxt.globals.distrochooser.text('sys.rating-'+key)" :class="{'active': selectedRating == key }"  v-on:click.prevent="setRating(key)">
+                <a class="face tooltip tooltip-bottom" :data-tooltip="text('sys.rating-'+key)" :class="{'active': selectedRating == key }"  v-on:click.prevent="setRating(key)">
                     {{ icon }}
                 </a>
             </span>
         </p>
         <p v-if="selectedRating != 0">
-            {{ this.nuxt.globals.distrochooser.text('sys.rated') }}
+            {{ this.text('sys.rated') }}
         </p>
   </div>
 </template>
 
 <script>
-import nuxt from '../nuxt.config'
+import i18n from '~/mixins/i18n'
 export default {
+  mixins: [i18n],
   props: ['parent'],
   data: function () {
     return {
@@ -30,16 +31,16 @@ export default {
       }
     }
   },
-  computed: {
-    nuxt: function () {
-      return nuxt
-    }
-  },
   methods: {
-    setRating: function (rating) {
+    setRating: async function (rating) {
       this.selectedRating = parseInt(rating)
-      var test = this.nuxt.globals.test
-      this.nuxt.globals.distrochooser.setRating(this.selectedRating, test)
+      var test = this.$store.state.test
+      await this.$store.dispatch('setRating', {
+        params:{
+          'test': test,
+          'rating': rating
+        }
+      })
     }
   }
 }

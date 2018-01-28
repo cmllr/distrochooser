@@ -19,7 +19,7 @@
           <nav class="panel-nav">
             <ul class="tab tab-block mobile-navigation">
               <li class="tab-item">
-                <a :href="'/info/'+this.globals.lang+'/about'">
+                <a :href="'/info/'+ this.$store.state.language+'/about'">
                   {{ text("sys.about.short") }}
                 </a>
               </li>
@@ -30,12 +30,12 @@
                 </a>
               </li>
               <li class="tab-item">
-                <a :href="'/info/'+this.globals.lang+'/privacy'">
+                <a :href="'/info/'+this.$store.state.language+'/privacy'">
                   {{ text("sys.privacy") }}
                 </a>
               </li>
               <li class="tab-item">
-                <a :href="'/info/'+this.globals.lang+'/contact'">
+                <a :href="'/info/'+this.$store.state.language+'/contact'">
                   {{ text("sys.contact") }}
                 </a>
               </li>
@@ -171,7 +171,7 @@
             <div class="panel-body">
               <div class="form-group">
                 <label class="form-switch">
-                  <input type="checkbox" v-model="globals.distrochooser.options.displayExcluded">
+                  <input type="checkbox" v-model="displayExcluded">
                   <i class="form-icon"></i> {{ text('sys.displayexcluded') }}
                 </label>
               </div>
@@ -188,7 +188,6 @@
 <script>
 import Vue from 'vue' // eslint-disable-line no-unused-vars
 import i18n from '../mixins/i18n'
-import nuxt from '../mixins/nuxt-wrapper'
 import distrolist from './distrolist'
 import bridge from './bridge'
 export default {
@@ -197,19 +196,21 @@ export default {
       weigthActive: false,
       resultWayChoosed: false,
       tags: {},
-      displayTest: -1
+      displayTest: -1,
+      displayExcluded: this.$store.state.options.displayExcluded
     }
   },
+  watch: {
+    displayExcluded: function (value){
+      this.$store.commit('setDisplayExcluded', value)
+    },
+  },
   mixins: [
-    i18n,
-    nuxt
+    i18n
   ],
   components: {
     distrolist,
     bridge
-  },
-  created: function () {
-    this.globals.mainInstance = this
   },
   mounted: function () {
     jQuery('#headerwelcome').trigger('click') // eslint-disable-line no-undef
@@ -240,10 +241,9 @@ export default {
       })
     },
     distros: function () {
-      // var raw =  this.globals.distros
       var results = []
       var _t = this
-      this.globals.distros.forEach(function (d) {
+      this.$store.state.data.distros.forEach(function (d) {
         var hits = []
         var antihits = []
         d.results = {}
@@ -358,7 +358,7 @@ export default {
     answer: function (q, a) {
       this.resultWayChoosed = false
       this.weigthActive = false
-      this.globals.preloadInfos = null // we do not need them anymore if something is answered
+      this.$store.commit('setResult', null)// we do not need them anymore if something is answered
       if (q.isSingle) {
         this.removeAnswers(q)
       }
@@ -382,13 +382,13 @@ export default {
     },
     toggleWeighting: function () {
       this.weigthActive = !this.weigthActive
-      if (this.globals.preloadInfos !== null) {
+      if (this.$store.state.result !== null) {
         var preloadedTags = {}
-        this.globals.preloadInfos.tags.forEach(function (tag) {
+        this.$store.state.result.tags.forEach(function (tag) {
           preloadedTags[tag.name] = tag
         }, this)
         this.$store.commit("setTags", preloadedTags)
-        this.globals.preloadInfos = null
+        this.$store.commit('setResult', null)
         this.weigthActive = true
         this.resultWayChoosed = false
       }
@@ -402,14 +402,49 @@ export default {
       }
       this.resultWayChoosed = !this.resultWayChoosed
       if (this.resultWayChoosed) {
-        if (this.globals.preloadInfos !== null) {
+        if (this.$store.state.result !== null) {
           this.computeTags()
-          this.globals.preloadInfos = null
+          this.$store.commit('setResult', null)
           this.weigthActive = false
           this.resultWayChoosed = true
         }
-        this.globals.distrochooser.addResult(this)
+        this.addResult(this)
       }
+    },
+    addResult: async function (instance) {
+      var tags = this.$store.state.tags // eslint-disable-line no-unused-vars
+      var answers = [] // eslint-disable-line no-unused-vars
+      var answered = this.$store.state.data.questions.filter(function (q) {
+        return q.answered === true
+      })
+      for (var i in answered) {
+        var answer = answered[i]
+        answer.answers.forEach(function (answer) {
+          if (answer.selected) {
+            answers.push(answer.id)
+          }
+        })
+      }
+      var tagsToSubmit = []
+      for (var tag in tags) {
+        var element = {
+          'name': tag,
+          'weight': parseInt(tags[tag].weight),
+          'negative': tags[tag].negative,
+          'amount': tags[tag].amount
+        }
+        tagsToSubmit.push(element)
+      }
+      await this.$store.dispatch('addResult',{
+        data: {
+          'answers': answers,
+          'tags': tagsToSubmit
+        }, 
+        params:{
+          'language': this.$store.state.language,
+          'visitor': this.$store.state.data.id
+        }
+      })
     },
     jumpToWeighting: function () {
       jQuery('html, body').animate({ scrollTop: jQuery('#weighting').offset().top }, 10) // eslint-disable-line no-undef

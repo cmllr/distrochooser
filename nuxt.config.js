@@ -1,44 +1,6 @@
-let locales = ['de', 'en']
-
-let welcomeHeader = {
-  'de': 'Willkommen beim Distrochooser',
-  'en': 'Welcome to Distrochooser!'
-}
-
-let descriptions = {
-  'de': 'Die Linux Auswahlhilfe hilft Anfängern und Umsteigern in der Menge von Linux-Distributionen die passende Linux-Distribution zu finden.',
-  'en': 'The Distrochooser helps you to find the suitable Linux distribution based on your needs!'
-}
-
-let longDescriptions = {
-  'de': descriptions['de'] + '<br> <br>Dabei musst Du lediglich einfache Fragen über Deine Anforderungen und Wünsche in unserer Linux-Auswahlhilfe beantworten. Anschließend ermitteln wir für Dich, welches Linux für Deine Anforderungen geeignet sein könnte.',
-  'en': descriptions['en'] + '<br> <br>You only have to answer our questions about your requirements for a Linux distribution. After you finished, we will calculate a list of Linux distributions which will fit your needs.'
-}
 module.exports = {
-  /*
-  ** Headers of the page
-  */
-  globals: {
-    i18n: null,
-    distrochooser: null,
-    questions: null,
-    lang: locales[0],
-    distros: [],
-    useragent: null,
-    referrer: null,
-    dnt: false,
-    visitor: -1,
-    test: -1,
-    locales: locales,
-    descriptions: descriptions,
-    description: null,
-    mainInstance: null,
-    preloadInfos: null,
-    longDescriptions: longDescriptions,
-    welcomeHeader: welcomeHeader
-  },
   head: {
-    title: 'Distrochooser',
+    title: 'Distrochooser 5',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },

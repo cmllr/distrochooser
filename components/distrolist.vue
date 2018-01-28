@@ -39,7 +39,7 @@
       </div>
     </div>
   </div>
-  <div class="timeline-item" v-for="(d,key) in distros" v-bind:key="key" v-if="d.points > 0 || globals.distrochooser.options.displayExcluded">
+  <div class="timeline-item" v-for="(d,key) in distros" v-bind:key="key" v-if="d.points > 0 || $store.state.options.displayExcluded">
     <div class="timeline-left">
       <a class="timeline-icon icon-lg tooltip" :data-tooltip="distros.indexOf(d) + 1">
         <i class="icon" :class="{'icon-check':d.points > 0, 'icon-cross': d.points <= 0}"></i>
@@ -78,9 +78,7 @@
 </div>
 </template>
 <script>
-import nuxt from '../mixins/nuxt-wrapper'
 import i18n from '../mixins/i18n'
-
 import rating from '../components/rating'
 export default {
   props: [
@@ -91,15 +89,14 @@ export default {
     rating
   },
   mixins: [
-    nuxt,
     i18n
   ],
   computed: {
     shareLink: function () {
-      return 'https://distrochooser.de/' + this.globals.lang + '/' + this.$store.state.test
+      return 'https://distrochooser.de/' + this.$store.state.language + '/' + this.$store.state.test
     },
     isDistroListEmpty: function () {
-      if (!this.globals.distrochooser.options.displayExcluded) {
+      if (!this.$store.state.options.displayExcluded) {
         var nonEmpty = 0
         for (var i in this.distros) {
           if (this.distros[i].points > 0) {

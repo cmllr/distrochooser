@@ -1,35 +1,51 @@
 <template lang="html">
-  <div class="columns loader" v-if="!this.nuxt.globals.distrochooser.loaded">
+  <div class="columns loader" v-if="!this.$store.state.loaded">
     <div class="column col-3 hide-xs">
     </div>
     <div class="column col-1 loader-image hide-xs">
       <img alt="Distrochooser Logo" title="Distrochooser Logo" src="/logo.png">
     </div>
     <div class="column col-6 loader-text hide-xs">
-     <h1>{{ this.nuxt.globals.welcomeHeader[this.nuxt.globals.lang] }} <b>5</b></h1>
-     <p v-html="this.nuxt.globals.longDescriptions[this.nuxt.globals.lang]"></p>
+     <h1>{{ this.welcomeHeader[this.$store.state.language] }} <b>5</b></h1>
+     <p v-html="this.longDescriptions[this.$store.state.language]"></p>
     </div>
     <div class="column show-xs mobile-text">
       <div class="centered mobile-logo">
         <img alt="Distrochooser Logo" title="Distrochooser Logo" src="/logo.png">
       </div>
-      <h1>{{ this.nuxt.globals.welcomeHeader[this.nuxt.globals.lang] }} </h1>
-      <p v-html="this.nuxt.globals.longDescriptions[this.nuxt.globals.lang]"></p>
+      <h1>{{ this.welcomeHeader[this.$store.state.language] }} </h1>
+      <p v-html="this.longDescriptions[this.$store.state.language]"></p>
     </div>
     <div class="footer">
-     <a :title = "this.nuxt.globals.lang === 'de'? 'Impressum' : 'Contact'" :href="'/info/'+this.nuxt.globals.lang+'/contact/'"> {{ this.nuxt.globals.lang === 'de'? 'Impressum' : 'Contact'}}</a>
-     <a :title = "this.nuxt.globals.lang === 'de'? 'Datenschutz' : 'Privacy'" :href="'/info/'+this.nuxt.globals.lang+'/privacy/'"> {{ this.nuxt.globals.lang === 'de'? 'Datenschutz' : 'Privacy'}}</a>
+     <a :title = "this.$store.state.language === 'de'? 'Impressum' : 'Contact'" :href="'/info/'+this.$store.state.language+'/contact/'"> {{this.$store.state.language === 'de'? 'Impressum' : 'Contact'}}</a>
+     <a :title = "this.$store.state.language === 'de'? 'Datenschutz' : 'Privacy'" :href="'/info/'+this.$store.state.language+'/privacy/'"> {{ this.$store.state.language === 'de'? 'Datenschutz' : 'Privacy'}}</a>
     </div>
   </div>
 </template>
 
 <script>
-import nuxt from '../nuxt.config'
+import i18n from '~/mixins/i18n'
 export default {
-  computed: {
-    nuxt: function () {
-      return nuxt
+  mixins: [i18n],
+  created: function () {
+    if (this.$route.params.lang !== undefined) {
+      var l = this.$route.params.lang
+      this.$store.commit("setLanguage", this.locales.indexOf(l) !== -1 ? l : 'en')
+    } else {
+      this.$store.commit("setLanguage", 'de')
     }
+    //Backwards compalibity for &l=2
+    if (typeof this.$route.query['l'] !== 'undefined') {
+      var raw = parseInt(this.$route.query['l'])      
+      this.$store.commit("setLanguage", raw === 1 ? 'de' : 'en')
+    }
+    // Load old test
+    if (this.$route.params.test !== undefined) {
+      this.$store.commit("setTest", this.$route.params.test)
+    }
+
+    this.$store.commit("setUserAgent", typeof navigator === 'undefined' ? '' : navigator.userAgent)
+    this.$store.commit("setReferrer", typeof document === 'undefined' ? '' : document.referrer)
   }
 }
 </script>
